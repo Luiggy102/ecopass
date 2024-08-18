@@ -2,18 +2,24 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"strconv"
 
 	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/lipgloss"
 )
 
 var (
-	strNota1, strNota2, strActividades string
-	nota1, nota2, actividades          int
+	strNota1, strNota2, strActividades, strExámen string
+	nota1, nota2, actividades, exámen             int
 )
 
 func main() {
+	presentación := huh.NewNote().
+		Title("\nEcopass").
+		Description("TUI calcular si pasas o no")
+
 	inputN1 := huh.NewInput().
 		Title("Colque la nota del primer exámen").
 		Description("nota entre 0 a 20").
@@ -62,9 +68,24 @@ func main() {
 			return nil
 		})
 
-	entradas := huh.NewGroup(inputN1, inputN2, inputAct).
-		WithShowHelp(false).
-		WithTheme(huh.ThemeBase16())
+	inputExam := huh.NewInput().
+		Title("Colque la nota del exámen final").
+		Description("nota entre 0 a 30").
+		Placeholder("20").
+		Value(&strExámen).
+		Validate(func(s string) error {
+			intTransformado, err := strconv.Atoi(s)
+			if err != nil {
+				return errors.New("Coloque un número en nota del exámen")
+			}
+			if intTransformado < 0 || intTransformado > 30 {
+				return errors.New("Coloque un número entre 0 a 30 en la nota de exámen")
+			}
+			return nil
+		})
+
+	entradas := huh.NewGroup(presentación, inputN1, inputN2, inputAct, inputExam).
+		WithShowHelp(false)
 
 	formulario := huh.NewForm(entradas)
 
@@ -75,4 +96,34 @@ func main() {
 	nota1, _ = strconv.Atoi(strNota1)
 	nota2, _ = strconv.Atoi(strNota2)
 	actividades, _ = strconv.Atoi(strActividades)
+	exámen, _ = strconv.Atoi(strExámen)
+	total := nota1 + nota2 + actividades + exámen
+
+	switch {
+	case total >= 70:
+		mensaje := fmt.Sprintf("¡Felicidades pasaste con %d!\n", total)
+		colorTabla := lipgloss.Color("#88D66C")
+		imprimirMensaje(
+			bannerAprobado,
+			tablaNotas(nota1, nota2, actividades, exámen, mensaje, colorTabla),
+			colorTabla,
+		)
+	case (total > 60 && total < 70) && actividades >= 18:
+		mensaje := fmt.Sprintf("Sacaste %d en total\n Te falto %d puntos para pasar.\n", total, 70-total)
+		colorTabla := lipgloss.Color("#F6FB7A")
+		imprimirMensaje(
+			bannerRecuperación,
+			tablaNotas(nota1, nota2, actividades, exámen, mensaje, colorTabla),
+			colorTabla,
+		)
+	case total <= 60:
+		mensaje := fmt.Sprintf("Te quedaste con %d\nTe faltaron %d puntos.\n", total, 70-total)
+		colorTabla := lipgloss.Color("#EE4E4E")
+		imprimirMensaje(
+			bannerReprobado,
+			tablaNotas(nota1, nota2, actividades, exámen, mensaje, colorTabla),
+			colorTabla,
+		)
+	}
+
 }
