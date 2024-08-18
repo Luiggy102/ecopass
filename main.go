@@ -17,11 +17,11 @@ var (
 
 func main() {
 	presentación := huh.NewNote().
-		Title("\nEcopass").
+		Title("\n----- Ecopass -----").
 		Description("TUI calcular si pasas o no")
 
 	inputN1 := huh.NewInput().
-		Title("Colque la nota del primer exámen").
+		Title("Colque la nota del 1ER EXÁMEN").
 		Description("nota entre 0 a 20").
 		Placeholder("18").
 		Value(&strNota1).
@@ -37,7 +37,7 @@ func main() {
 		})
 
 	inputN2 := huh.NewInput().
-		Title("Colque la nota del segundo exámen").
+		Title("Colque la nota del 2DO EXÁMEN").
 		Description("nota entre 0 a 20").
 		Placeholder("16").
 		Value(&strNota2).
@@ -53,7 +53,7 @@ func main() {
 		})
 
 	inputAct := huh.NewInput().
-		Title("Colque la nota de actividades").
+		Title("Colque la nota de ACTIVIDADES").
 		Description("nota entre 0 a 30").
 		Placeholder("22").
 		Value(&strActividades).
@@ -69,7 +69,7 @@ func main() {
 		})
 
 	inputExam := huh.NewInput().
-		Title("Colque la nota del exámen final").
+		Title("Colque la nota del EXÁMEN FINAL").
 		Description("nota entre 0 a 30").
 		Placeholder("20").
 		Value(&strExámen).
@@ -84,10 +84,19 @@ func main() {
 			return nil
 		})
 
-	entradas := huh.NewGroup(presentación, inputN1, inputN2, inputAct, inputExam).
-		WithShowHelp(false)
+	grupo1 := huh.NewGroup(presentación,
+		inputN1,
+		inputN2,
+		huh.NewNote().Next(true).NextLabel("Siguente"),
+	).WithShowHelp(false)
 
-	formulario := huh.NewForm(entradas)
+	grupo2 := huh.NewGroup(huh.NewNote(),
+		inputAct,
+		inputExam,
+		huh.NewNote().Next(true).NextLabel("Finalizar"),
+	).WithShowHelp(false)
+
+	formulario := huh.NewForm(grupo1, grupo2)
 
 	if err := formulario.Run(); err != nil {
 		log.Fatal(err)
@@ -100,7 +109,7 @@ func main() {
 	total := nota1 + nota2 + actividades + exámen
 
 	switch {
-	case total >= 70:
+	case total >= 70 && actividades >= 18:
 		mensaje := fmt.Sprintf("¡Felicidades pasaste con %d!\n", total)
 		colorTabla := lipgloss.Color("#88D66C")
 		imprimirMensaje(
@@ -108,8 +117,16 @@ func main() {
 			tablaNotas(nota1, nota2, actividades, exámen, mensaje, colorTabla),
 			colorTabla,
 		)
+	case total >= 70 && actividades < 18:
+		mensaje := fmt.Sprintf("Sacaste %d en total\nTe falto puntos en actividades para pasar directo.\n", total)
+		colorTabla := lipgloss.Color("#F6FB7A")
+		imprimirMensaje(
+			bannerRecuperación,
+			tablaNotas(nota1, nota2, actividades, exámen, mensaje, colorTabla),
+			colorTabla,
+		)
 	case (total > 60 && total < 70) && actividades >= 18:
-		mensaje := fmt.Sprintf("Sacaste %d en total\n Te falto %d puntos para pasar.\n", total, 70-total)
+		mensaje := fmt.Sprintf("Sacaste %d en total\nTe falto %d puntos para pasar directo.\n", total, 70-total)
 		colorTabla := lipgloss.Color("#F6FB7A")
 		imprimirMensaje(
 			bannerRecuperación,
@@ -117,7 +134,7 @@ func main() {
 			colorTabla,
 		)
 	case total <= 60:
-		mensaje := fmt.Sprintf("Te quedaste con %d\nTe faltaron %d puntos.\n", total, 70-total)
+		mensaje := fmt.Sprintf("Te quedaste con %d.\nTe faltaron %d puntos para pasar.\n", total, 70-total)
 		colorTabla := lipgloss.Color("#EE4E4E")
 		imprimirMensaje(
 			bannerReprobado,
