@@ -12,10 +12,19 @@ y dependiendo de ciertas con condiciones da como salida tres tipo de mensajes.
 
 Así como también muestra una tabla con las notas ingresadas.
 
+## Instalación
+La instalación se puede hacer por medio de Go.
+```bash
+go install github.com/Luiggy102/ecopass@latest
+```
+
 ## Demostración
 ![alt text](./media/demostración.gif) 
 
 ### Mensajes de salida
+Aprobado
 ![alt text](./media/pasaste.png) 
+En recuperación
 ![alt text](./media/recuperación.png) 
+Reprobado
 ![alt text](./media/reprobado.png) 
