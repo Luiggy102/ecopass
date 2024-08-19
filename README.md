@@ -11,3 +11,11 @@ y dependiendo de ciertas con condiciones da como salida tres tipo de mensajes.
 - Reprobado
 
 Así como también muestra una tabla con las notas ingresadas.
+
+## Demostración
+![alt text](./media/demostración.gif) 
+
+### Mensajes de salida
+![alt text](./media/pasaste.png) 
+![alt text](./media/recuperación.png) 
+![alt text](./media/reprobado.png) 
